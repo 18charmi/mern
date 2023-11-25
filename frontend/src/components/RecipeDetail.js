@@ -1,7 +1,8 @@
 import { API_BASE_URL } from "../constants/constant";
-import { useRecipeContext } from "../hoc/RecipeProvider";
+import { useRecipeContext } from "../context/RecipeProvider";
+import { useAuthContext } from "../hook/useAuthContext";
 import { Trash } from "./Icons";
-import { formatDistanceToNow } from "date-fns"
+import { formatDistanceToNow } from "date-fns";
 const pStyles = {
   margin: "0",
   fontSize: "0.9em",
@@ -9,9 +10,17 @@ const pStyles = {
 };
 export default function RecipeDetail({ r }) {
   const { dispatch } = useRecipeContext();
+  const { user } = useAuthContext();
+
   const handleClick = async () => {
+    if (!user) {
+      return;
+    }
     const response = await fetch(`${API_BASE_URL}/api/recipes/${r._id}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
     });
 
     const json = await response.json();
@@ -43,7 +52,7 @@ export default function RecipeDetail({ r }) {
         <strong>{r.duration} mins</strong>
       </p>
       <p style={pStyles}>
-        <strong>{r.recipeType}</strong>
+        <strong>{r.recipe_type}</strong>
       </p>
       <p style={pStyles}>{formatDistanceToNow(new Date(r.createdAt))}</p>
 
@@ -58,11 +67,11 @@ export default function RecipeDetail({ r }) {
           // borderRadius: "50%",
           color: "#333",
           border: "0px",
-          backgroundColor: "transparent"
+          backgroundColor: "transparent",
         }}
         onClick={handleClick}
       >
-        <Trash/>
+        <Trash />
         {/* delete */}
       </button>
     </div>

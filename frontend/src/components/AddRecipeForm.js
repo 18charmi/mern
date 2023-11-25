@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { API_BASE_URL } from "../constants/constant";
-import { useRecipeContext } from "../hoc/RecipeProvider";
+import { useRecipeContext } from "../context/RecipeProvider";
+import { useAuthContext } from "../hook/useAuthContext";
 
 export default function AddRecipeForm() {
   const { dispatch } = useRecipeContext();
+  const { user } = useAuthContext();
+
   const [formData, setFormData] = useState({
     title: "",
     duration: "",
-    recipeType: "",
+    recipe_type: "",
   });
   const [error, setError] = useState(null);
   const [emptyFields, setEmptyFields] = useState([]);
@@ -17,11 +20,17 @@ export default function AddRecipeForm() {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!user) {
+      setError("You must be logged in");
+      return;
+    }
     const response = await fetch(`${API_BASE_URL}/api/recipes`, {
       method: "POST",
       body: JSON.stringify(formData),
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}`,
       },
     });
 
@@ -31,14 +40,14 @@ export default function AddRecipeForm() {
       setError(json.error);
       setEmptyFields(json.emptyFields);
     } else {
-      dispatch({ type: "CREATE_WORKOUT", payload: json });
+      dispatch({ type: "CREATE_RECIPE", payload: json });
       setError(null);
       setEmptyFields([]);
       alert(`New recipe added`);
       setFormData({
         title: "",
         duration: "",
-        recipeType: "",
+        recipe_type: "",
       });
     }
   };
@@ -67,10 +76,10 @@ export default function AddRecipeForm() {
       <label>Recipe Type: </label>
       <input
         type="text"
-        name="recipeType"
-        value={formData.recipeType}
+        name="recipe_type"
+        value={formData.recipe_type}
         onChange={handleChange}
-        className={emptyFields.includes("recipeType") ? "error" : ""}
+        className={emptyFields.includes("recipe_type") ? "error" : ""}
       />
 
       <button

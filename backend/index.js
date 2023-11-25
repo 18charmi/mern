@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const recipeRoutes = require("./routes/recipes");
+const userRoutes = require("./routes/user");
 
 // express app
 const app = express();
@@ -22,6 +23,7 @@ app.use((req, res, next) => {
 
 // routes
 app.use("/api/recipes", recipeRoutes);
+app.use("/api/user", userRoutes);
 
 // to test the server is running or not
 // app.get('/', (req, res) => {

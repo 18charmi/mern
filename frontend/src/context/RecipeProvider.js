@@ -3,12 +3,12 @@ const RecipeContext = createContext();
 
 const recipeReducer = (state, action) => {
   switch (action.type) {
-    case "SET_WORKOUTS":
+    case "SET_RECIPES":
       return {
         recipes: action.payload,
       };
 
-    case "CREATE_WORKOUT":
+    case "CREATE_RECIPE":
       return {
         recipes: [action.payload, ...state.recipes],
       };

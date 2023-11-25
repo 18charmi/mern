@@ -2,7 +2,8 @@ const Recipe = require("../models/recipeModal");
 const mongoose = require("mongoose");
 // get all recipes
 const getRecipes = async (req, res) => {
-  const recipes = await Recipe.find({}).sort({ createdAt: -1 });
+  const user_id = req.user._id;
+  const recipes = await Recipe.find({ user_id }).sort({ createdAt: -1 });
 
   res.status(200).json(recipes);
 };
@@ -23,7 +24,7 @@ const getRecipe = async (req, res) => {
 
 // create new recipe
 const createRecipe = async (req, res) => {
-  const { title, duration, recipeType } = req.body;
+  const { title, duration, recipe_type } = req.body;
   let emptyFields = [];
   if (!title) {
     emptyFields.push("title");
@@ -31,20 +32,28 @@ const createRecipe = async (req, res) => {
   if (!duration) {
     emptyFields.push("duration");
   }
-  if (!recipeType) {
-    emptyFields.push("recipeType");
+  if (!recipe_type) {
+    emptyFields.push("recipe_type");
   }
 
-  if(emptyFields.length > 0) {
-    res.status(400).json({ error: `Please fill in all the fields`, emptyFields });
+  if (emptyFields.length > 0) {
+    res
+      .status(400)
+      .json({ error: `Please fill in all the fields`, emptyFields });
   }
 
   // add doc to DB
   try {
-    const recipe = await Recipe.create({ title, duration, recipeType });
+    const user_id = req.user._id;
+    const recipe = await Recipe.create({
+      title,
+      duration,
+      recipe_type,
+      user_id,
+    });
     res.status(200).json(recipe);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ error: error.message, emptyFields: [] });
   }
 };
 
